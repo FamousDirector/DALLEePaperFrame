@@ -3,7 +3,7 @@
 export WANDB_API_KEY=$1
 
 # build docker images
-docker build . -t dalle-mini:latest
+docker build . -t dalle-mini-server:latest
 
 # download weights - some of them are in huggingface, others in WandB
 pip install wandb
