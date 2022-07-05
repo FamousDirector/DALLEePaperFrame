@@ -1,14 +1,11 @@
 # DALLEePaperFrame
 
 ## Getting Started
+### Setup the Server
 
-## Design
+1. Install git lfs. See here https://github.com/git-lfs/git-lfs/blob/main/INSTALLING.md for instructions.
+2. Setup the server with the script `setup-server.sh`:
+```bash
+bash setup_server.sh <your_wandb_api_token> # the API token you get from https://wandb.com/authorize
+```
 
-## Setup
-
-Set up wandb
-a) Sign up for a free account at https://wandb.ai/site and then login to your wandb account. 
-b) Login to the wandb library on your machine. You will find your API key here: https://wandb.ai/authorize.
-
-Install git lfs
-See here https://github.com/git-lfs/git-lfs/blob/main/INSTALLING.md
