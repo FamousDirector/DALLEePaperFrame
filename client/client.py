@@ -16,7 +16,7 @@ width, height = display.resolution
 fc = FrameComposer(width, height)
 
 last_creation_time = 0
-minimum_time_between_image_generations = 10
+minimum_time_between_image_generations = 5
 
 with open("prompts.txt") as file:
     prompts = file.readlines()
@@ -36,10 +36,10 @@ def generate_sample_prompt():
     """
     pp = random.choice(pre_prompts)
     p = random.choice(prompts)
-    return pp + ' ' + p if pp is not '' else p
+    return pp + ' ' + p if pp != '' else p
 
 
-def generate_new_image(text_prompt, generated_image_size=300):
+def generate_new_image(text_prompt, generated_image_size=350):
     print('Generating new image...')
 
     # request the image from the server
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     def display_new_generated_image_w_same_prompt(_):
         global last_creation_time
 
-        if time.time() - last_creation_time > minimum_time_between_image_generations:
+        if time.time() - last_creation_time > minimum_time_between_image_generations:  # debounce the button press
             global GENERATOR_TEXT_PROMPT
 
             # generate and display a new image
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     def display_new_generated_image_w_new_prompt(_):
         global last_creation_time
 
-        if time.time() - last_creation_time > minimum_time_between_image_generations:
+        if time.time() - last_creation_time > minimum_time_between_image_generations:  # debounce the button press
             global GENERATOR_TEXT_PROMPT
 
             GENERATOR_TEXT_PROMPT = generate_sample_prompt()  # generate a new prompt

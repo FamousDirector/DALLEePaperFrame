@@ -7,7 +7,7 @@ from PIL import Image
 from frame_composer import FrameComposer
 
 width, height = 600, 448
-generated_image_size = 100
+generated_image_size = 350
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
