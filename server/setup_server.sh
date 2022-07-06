@@ -1,5 +1,5 @@
-# #!/usr/bin/bash
-
+#!/usr/bin/bash
+export DOCKER_BUILDKIT=1
 export WANDB_API_KEY=$1
 
 # build docker images

@@ -7,6 +7,7 @@ from PIL import Image
 from frame_composer import FrameComposer
 
 width, height = 600, 448
+generated_image_size = 100
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -17,7 +18,8 @@ if __name__ == '__main__':
 
     # request the image from the server
     query_text = 'astronaut in space eating a sandwich'
-    response = requests.get('http://'+args.server_address+':'+args.server_port+'/generate/'+query_text)
+    response = requests.get('http://'+args.server_address+':'+args.server_port+
+                            '/generate/'+query_text+'?size={}'.format(generated_image_size))
     generated_image = Image.open(io.BytesIO(response.content))
 
     # paste the image onto the display

@@ -26,7 +26,7 @@ def set_button_function(button_label, function):
     """
     if button_label in LABELS:
         pin = BUTTONS[LABELS.index(button_label)]
-        GPIO.add_event_detect(pin, GPIO.FALLING, function, bouncetime=250)
+        GPIO.add_event_detect(pin, GPIO.FALLING, function, bouncetime=500)
     else:
         raise Exception(f"{button_label} is not a valid button label")
 

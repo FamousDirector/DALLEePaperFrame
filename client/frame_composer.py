@@ -5,7 +5,7 @@ class FrameComposer:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.large_font_height = 35
+        self.large_font_height = 30
         self.small_font_height = 15
         self.large_font = ImageFont.truetype("/usr/share/fonts/truetype/msttcorefonts/arial.ttf", self.large_font_height)
         self.small_font = ImageFont.truetype("/usr/share/fonts/truetype/msttcorefonts/arial.ttf", self.small_font_height)
