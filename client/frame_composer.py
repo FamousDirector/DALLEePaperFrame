@@ -29,13 +29,13 @@ class FrameComposer:
                         self.image_y + self.border_width + image.height),
                        fill=(255, 255, 255), outline=(0, 0, 0))
         large_text_w, large_text_h = draw.textsize(text_prompt, font=self.large_font)
-        draw.text(((self.width - large_text_w) // 2,
-                  self.image_y + self.border_width + image.height),
+        draw.text(((self.width - large_text_w) // 2 - 10,
+                   self.image_y + self.border_width + image.height),
                   f"\"{text_prompt}\"", font=self.large_font, fill=(0, 0, 0))
 
         small_text_w, small_text_h = draw.textsize(self.credit_text, font=self.small_font)
         draw.text(((self.width - small_text_w) // 2,
-                  self.image_y + self.border_width + image.height + large_text_h),
+                   self.image_y + self.border_width + image.height + large_text_h),
                   self.credit_text, font=self.small_font, fill=(150, 0, 0))
 
         # add image to "frame"
