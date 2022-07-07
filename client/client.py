@@ -128,7 +128,7 @@ if __name__ == '__main__':
             print('Automated image generation started')
             random.choice([display_new_generated_image_w_same_prompt, display_new_generated_image_w_new_prompt])()
         threading.Timer(automated_image_generation_time, image_generation_timer).start()
-        image_generation_timer()
+    image_generation_timer()
 
     # Wait forever for button presses (ie while true)
     print("Setup complete. Waiting for button presses...")
