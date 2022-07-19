@@ -102,9 +102,6 @@ class TritonPythonModel:
 
             image_array = np.array(image)
 
-            print("here is the value: ", image_array.shape)
-            sys.stdout.flush()
-
             out_tensor_0 = pb_utils.Tensor("generated_image",
                                            image_array.astype(output0_dtype))
 

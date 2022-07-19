@@ -19,4 +19,17 @@ output [
 
 instance_group [{ kind: KIND_CPU }]
 
-# TODO add a warmup
+model_warmup [
+    {
+        name: "warmup 1"
+        batch_size: 1
+        inputs: {
+            key: "text_prompt"
+            value: {
+                data_type: TYPE_STRING
+                dims: [1]
+                random_data: true
+                }
+            }
+    }
+]
