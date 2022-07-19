@@ -3,8 +3,7 @@
 ## Getting Started
 ### Setup the Server
 
-1. Install git lfs. See here https://github.com/git-lfs/git-lfs/blob/main/INSTALLING.md for instructions.
-2. Setup the server with the script `setup_server.sh`:
+Setup the server with the script `setup_server.sh`:
 ```bash
 cd server/
 bash setup_server.sh <your_wandb_api_token> # the API token you get from https://wandb.com/authorize
@@ -28,3 +27,7 @@ bash setup_client.sh
 cd client/
 bash run_client.sh <ip_address> # the IP address of the server
 ```
+
+### Reducing power consumption
+https://www.cnx-software.com/2021/12/09/raspberry-pi-zero-2-w-power-consumption/
+https://blues.io/blog/tips-tricks-optimizing-raspberry-pi-power/

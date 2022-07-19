@@ -1,0 +1,15 @@
+FROM nvcr.io/nvidia/l4t-base:r34.1.1
+
+RUN apt-get update && apt-get install -y \
+  git \
+  python3 \
+  python3-pip
+
+RUN pip3 install -q \
+    fastapi==0.78.0 \
+    uvicorn[standard] \
+    python-multipart==0.0.5 \
+    tritonclient[grpc]==2.23.0 \
+    Pillow~=9.2.0
+
+WORKDIR /workspace

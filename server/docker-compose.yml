@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  triton-inference-server:
+    container_name: triton-inference-server
+    image: triton-inference-server
+    command:
+      - /opt/tritonserver/bin/tritonserver
+      - --model-store=/model_repo
+      - --allow-metrics=true
+    volumes:
+      - ./model_repo:/model_repo
+
+  art-generator-api:
+    container_name: art-generator-api
+    image: art-generator-api
+    command: "uvicorn server_api:app --reload --port 8000 --host 0.0.0.0"
+    volumes:
+      - ./api:/workspace
+    ports:
+      - "8000:8000"

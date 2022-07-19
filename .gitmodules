@@ -1,4 +1,0 @@
-[submodule "dalle-mini"]
-	path = dalle-mini
-	url = https://github.com/borisdayma/dalle-mini.git
-	branch = main

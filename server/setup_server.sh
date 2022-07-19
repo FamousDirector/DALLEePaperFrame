@@ -1,28 +1,20 @@
 #!/usr/bin/bash
-export DOCKER_BUILDKIT=1
-export WANDB_API_KEY=$1
 
 # build docker images
-docker build . -t dalle-mini-server:latest
+if [[ "$(uname -a)" == *"x86"* ]]; then
+    docker build -f ./x86/Dockerfile.api . -t art-generator-api:latest
+    docker build -f ./x86/Dockerfile.triton . -t triton-inference-server:latest
+elif [[ "$(uname -a)" == *"tegra"* ]]; then
+  # see here if you want to build for arm64 on x86_64: https://github.com/multiarch/qemu-user-static
+    docker build -f ./Jetson/Dockerfile.api . -t art-generator-api:latest
+    docker build -f ./Jetson/Dockerfile.triton . -t triton-inference-server:latest
+else
+    echo "Unsupported system"
+    exit 1
+fi
 
-# download weights - some of them are in huggingface, others in WandB
-pip install wandb
-mkdir downloaded_models
-cd downloaded_models
-git clone https://huggingface.co/dalle-mini/vqgan_imagenet_f16_16384
-
-python3 - << EOF
-import wandb
-
-wandb.login(key="$WANDB_API_KEY")
-DALLE_MODEL = "dalle-mini/dalle-mini/mega-1-fp16:latest"
-dir = "dalle-mini/"
-
-# wandb artifact
-if wandb.run is not None:
-    artifact = wandb.run.use_artifact(DALLE_MODEL)
-else:
-    artifact = wandb.Api().artifact(DALLE_MODEL)
-artifact.download(dir)
-
-EOF
+# check if docker-compose is installed
+if ! command -v docker-compose >/dev/null 2>&1; then
+    echo "docker-compose is not installed - Please install!"
+    exit 1
+fi
