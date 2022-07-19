@@ -1,4 +1,5 @@
 import io
+import os.path
 import random
 import time
 import threading
@@ -19,15 +20,17 @@ last_creation_time = 0
 minimum_time_between_image_generations = 5
 
 automated_image_generation = True
-automated_image_generation_time = 60*60*1  # 1 hours
+automated_image_generation_time = 60 * 60 * 1  # 1 hours
 
+saved_image_folder = 'saved_images'
+if not os.path.exists(saved_image_folder):
+    os.makedirs(saved_image_folder)
 
 with open("prompts.txt") as file:
     prompts = file.readlines()
     prompts = [p.rstrip() for p in prompts]
 
 pre_prompts = ['',
-               '',
                'a cartoon of',
                'a painting of',
                'a watercolor of',
@@ -35,7 +38,8 @@ pre_prompts = ['',
                'a stencil of',
                'a picture of',
                'a sculpture of',
-               'a drawing of']
+               'a drawing of',
+               '']
 
 
 def generate_sample_prompt():
@@ -69,6 +73,27 @@ def display_image_on_frame(image, text_prompt):
     print("Displayed image on display")
 
 
+def save_image_to_file(image, text_prompt):
+    image.save(os.path.join(saved_image_folder, text_prompt.replace(' ', '_') + '.png'))
+
+    # remove the oldest image if there are more than 100 images in the folder
+    if len(os.listdir(saved_image_folder)) > 100:
+        oldest_image_path = os.path.join(saved_image_folder, sorted(os.listdir(saved_image_folder))[0])
+        os.remove(oldest_image_path)
+
+
+def load_image_from_file(text_prompt):
+    # find matching image in the saved images folder
+    image_path = os.path.join(saved_image_folder, text_prompt.replace(' ', '_') + '.png')
+    if os.path.isfile(image_path):
+        return Image.open(image_path), text_prompt
+    else:
+        # return random image if no matching image is found
+        random_file_name = random.choice(os.listdir(saved_image_folder))
+        return Image.open(os.path.join(saved_image_folder, random_file_name)), \
+               random_file_name.split('.')[0].replace('_', ' ')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--server-address', help='Server address')
@@ -86,7 +111,12 @@ if __name__ == '__main__':
             global GENERATOR_TEXT_PROMPT
 
             # generate and display a new image
-            generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
+            try:
+                generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
+                save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
+            except Exception as e:
+                print("A problem occurred: ", e)
+                generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
             display_image_on_frame(generated_image, GENERATOR_TEXT_PROMPT)
 
             last_creation_time = time.time()
@@ -101,7 +131,12 @@ if __name__ == '__main__':
             GENERATOR_TEXT_PROMPT = generate_sample_prompt()  # generate a new prompt
 
             # generate and display a new image
-            generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
+            try:
+                generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
+                save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
+            except Exception as e:
+                print("A problem occurred: ", e)
+                generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
             display_image_on_frame(generated_image, GENERATOR_TEXT_PROMPT)
 
             last_creation_time = time.time()
@@ -116,18 +151,22 @@ if __name__ == '__main__':
         else:
             print("Automated image generation disabled")
 
+
     # Set up the buttons
     set_button_function('A', display_new_generated_image_w_same_prompt)
     set_button_function('B', display_new_generated_image_w_new_prompt)
     set_button_function('C', lambda _: print('C pressed - but does nothing yet'))
     set_button_function('D', toggle_auto_image_generation)
 
+
     # set display to auto create a new image every N hours
     def image_generation_timer():
-        if automated_image_generation:
+        if automated_image_generation and time.time() - last_creation_time > minimum_time_between_image_generations:
             print('Automated image generation started')
             random.choice([display_new_generated_image_w_same_prompt, display_new_generated_image_w_new_prompt])()
         threading.Timer(automated_image_generation_time, image_generation_timer).start()
+
+
     image_generation_timer()
 
     # Wait forever for button presses (ie while true)
