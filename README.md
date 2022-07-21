@@ -10,11 +10,11 @@ By now everyone has seen AI generated art.
 There has been lots of amazing works in this field, perhaps most notably [DALLE2](https://openai.com/dall-e-2/) by OpenAI.
 In my opinion, the best way to view art is not on a computer screen, but in a frame on the wall. 
 
-This project creates local server to host the art generation AI and automatic speech recognition capabilities. 
+This project use a local server to host the art generation AI and automatic speech recognition capabilities. 
 The ePaper frame acts as a client to the server, requesting new art to be generated on demand.
 
 ## How does it work?
-The server is running on a "server" with an NVIDIA GPU (e.g. a Jetson, or other discreet GPU), and the ePaper frame "client" is running on a Raspberry Pi.
+The server is using an NVIDIA GPU (e.g. a Jetson, or other discreet GPU), and the ePaper frame "client" is running on a Raspberry Pi.
 The frame has four buttons, and a microphone.  
 The four buttons have the following functions:
 1. Request a new generation of art with the same prompt previously used (and currently displayed on the ePaper frame).
@@ -34,6 +34,8 @@ The two containers are:
   - The art generation model is a DALLE-mini variant called [min-dalle](https://github.com/kuprel/min-dalle) (massive shoutout to Brett Kuprel for this incredible Pytorch port).
 - `art-generator-api`: a [FastAPI](https://fastapi.tiangolo.com/) server that acts a clean endpoint for the client to request new art.
 The `server/` directory contains the code for the server. 
+
+<img src="docs/diagram.jpg" title="Architecture Diagram">
 
 ## How do I use this project?
 ### Set up the Server
@@ -72,9 +74,12 @@ See here for other notes on reducing power consumption on Raspberry Pis:
   - https://blues.io/blog/tips-tricks-optimizing-raspberry-pi-power/
 
 
-## ePaper
+### ePaper
 One thing to note about the ePaper is that it is not a perfect display. The particular one I chose has only 7 colors, which can lead to some images looking a bit weird.
 
 Another note is when ePaper refreshes its display. It takes a few seconds to do so. The particular one I chose has a refresh rate of about 30 seconds. Here is a highly sped up sample:
 
 <img src="docs/sample.gif">
+
+### Generation Time
+The time taken for art generation is about 10 seconds on an NVIDIA Jetson AGX Orin and about 7 seconds with an NVIDIA RTX2070. 
