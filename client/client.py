@@ -10,6 +10,7 @@ from PIL import Image
 
 from frame_composer import FrameComposer
 from buttons import set_button_function, wait_forever_for_button_presses
+from record_audio import record_audio
 
 display = inky.auto()
 width, height = display.resolution
@@ -94,6 +95,15 @@ def load_image_from_file(text_prompt):
                random_file_name.split('.')[0].replace('_', ' ')
 
 
+def get_text_prompt_from_audio(audio_file_name):
+    url = 'http://' + args.server_address + ':' + args.server_port + '/transcribe'
+    files = {'file': (audio_file_name, open(audio_file_name, 'rb'), 'audio/x-wav')}
+    response = requests.post(url, files=files)
+    text_prompt = response.text.replace('"', '').strip()
+    print("Received text prompt from server - {}".format(text_prompt))
+    return text_prompt
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--server-address', help='Server address')
@@ -142,6 +152,32 @@ if __name__ == '__main__':
             last_creation_time = time.time()
 
 
+    def display_new_generated_image_w_recorded_prompt(_=None):
+        global last_creation_time
+
+        if time.time() - last_creation_time > minimum_time_between_image_generations:
+            global GENERATOR_TEXT_PROMPT
+
+            # record the user's voice
+            print('Recording audio...')
+            audio_file_name = record_audio()
+            print('Finished recording audio')
+
+            # get the text prompt from the audio file
+            GENERATOR_TEXT_PROMPT = get_text_prompt_from_audio(audio_file_name)
+
+            # generate and display a new image
+            try:
+                generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
+                save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
+            except Exception as e:
+                print("A problem occurred: ", e)
+                generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
+            display_image_on_frame(generated_image, GENERATOR_TEXT_PROMPT)
+
+            last_creation_time = time.time()
+
+
     def toggle_auto_image_generation(_=None):
         global automated_image_generation
         automated_image_generation = not automated_image_generation
@@ -155,7 +191,7 @@ if __name__ == '__main__':
     # Set up the buttons
     set_button_function('A', display_new_generated_image_w_same_prompt)
     set_button_function('B', display_new_generated_image_w_new_prompt)
-    set_button_function('C', lambda _: print('C pressed - but does nothing yet'))
+    set_button_function('C', display_new_generated_image_w_recorded_prompt)
     set_button_function('D', toggle_auto_image_generation)
 
 

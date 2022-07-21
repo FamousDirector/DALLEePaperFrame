@@ -76,4 +76,4 @@ def transcribe_audio_file(file: UploadFile):
 
     predicted_text = results.as_numpy("predicted_text").tolist()
 
-    return {"transcribed_text": predicted_text}
+    return predicted_text
