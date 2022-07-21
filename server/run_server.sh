@@ -1,2 +1,2 @@
-docker-compose up --abort-on-container-exit
-#docker-compose up -d
+docker-compose up --abort-on-container-exit --remove-orphans
+#docker-compose up -d --remove-orphans
