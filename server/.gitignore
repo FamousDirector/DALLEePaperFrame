@@ -1,0 +1,7 @@
+downloaded_models
+*.png
+*.jpg
+*.jpeg
+generated_images
+**/*.wav
+**/*.onnx

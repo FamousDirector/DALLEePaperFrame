@@ -1,0 +1,35 @@
+name: "asr_post"
+backend: "python"
+max_batch_size: 1
+input [
+{
+    name: "predicted_tokens"
+    data_type: TYPE_FP32
+    dims: [ -1, 32 ]
+}
+]
+
+output [
+{
+    name: "recognized_speech"
+    data_type: TYPE_STRING
+    dims: [ -1 ]
+}
+]
+
+instance_group [{ kind: KIND_CPU }]
+
+model_warmup [
+    {
+        name: "warmup 1"
+        batch_size: 1
+        inputs: {
+            key: "predicted_tokens"
+            value: {
+                data_type: TYPE_FP32
+                dims: [10, 32]
+                zero_data: true
+                }
+            }
+    }
+]

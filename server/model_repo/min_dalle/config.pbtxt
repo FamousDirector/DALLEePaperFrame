@@ -1,0 +1,35 @@
+name: "min_dalle"
+backend: "python"
+max_batch_size: 1
+input [
+{
+    name: "text_prompt"
+    data_type: TYPE_STRING
+    dims: [ -1 ]
+}
+]
+
+output [
+{
+    name: "generated_image"
+    data_type: TYPE_FP32
+    dims: [ 256, 256, 3 ]
+}
+]
+
+instance_group [{ kind: KIND_CPU }]
+
+model_warmup [
+    {
+        name: "warmup 1"
+        batch_size: 1
+        inputs: {
+            key: "text_prompt"
+            value: {
+                data_type: TYPE_STRING
+                dims: [1]
+                random_data: true
+                }
+            }
+    }
+]

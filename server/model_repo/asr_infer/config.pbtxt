@@ -1,0 +1,36 @@
+name: "asr_infer"
+backend: "onnxruntime"
+max_batch_size: 1
+default_model_filename: "asr.onnx"
+input [
+{
+    name: "modelInput"
+    data_type: TYPE_FP32
+    dims: [ -1 ]
+}
+]
+
+output [
+{
+    name: "modelOutput"
+    data_type: TYPE_FP32
+    dims: [ -1, 32 ]
+}
+]
+
+instance_group [{ kind: KIND_GPU }]
+
+model_warmup [
+    {
+        name: "warmup 1"
+        batch_size: 1
+        inputs: {
+            key: "modelInput"
+            value: {
+                data_type: TYPE_FP32
+                dims: [1000]
+                random_data: true
+                }
+            }
+    }
+]
