@@ -1,5 +1,5 @@
 # DALLEePaperFrame
-Display never before seen art, on demand, using AI! 
+Ever wanted to display never before seen art, on demand, using AI?
 Press a button, speak a "prompt" for the AI artist, and see the new art!
 
 <img src="docs/sample.jpg" title="Art Generated onto ePaper!">
@@ -14,7 +14,7 @@ This project use a local server to host the art generation AI and automatic spee
 The ePaper frame acts as a client to the server, requesting new art to be generated on demand.
 
 ## How does it work?
-The server is using an NVIDIA GPU (e.g. a Jetson, or other discreet GPU), and the ePaper frame "client" is running on a Raspberry Pi.
+The server is using an NVIDIA GPU (e.g. a Jetson, or other discrete GPU), and the ePaper frame "client" is running on a Raspberry Pi.
 The frame has four buttons, and a microphone.  
 The four buttons have the following functions:
 1. Request a new generation of art with the same prompt previously used (and currently displayed on the ePaper frame).
