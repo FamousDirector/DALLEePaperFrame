@@ -3,3 +3,5 @@ downloaded_models
 *.jpg
 *.jpeg
 generated_images
+**/*.wav
+**/*.onnx

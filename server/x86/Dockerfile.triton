@@ -1,0 +1,9 @@
+FROM nvcr.io/nvidia/tritonserver:22.06-pyt-python-py3
+
+RUN pip3 install -q \
+    min-dalle==0.4 \
+    scipy==1.8.1
+
+WORKDIR /opt/tritonserver
+
+

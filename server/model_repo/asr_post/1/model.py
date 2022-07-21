@@ -2,8 +2,7 @@ import numpy as np
 import sys
 import json
 import io
-import torch
-from min_dalle import MinDalle
+import urllib.request
 
 # triton_python_backend_utils is available in every Triton Python model. You
 # need to use this module to create inference requests and responses. It also
@@ -17,6 +16,15 @@ class TritonPythonModel:
     """Your Python model must use the same class name. Every Python model
     that is created must have "TritonPythonModel" as the class name.
     """
+
+    @staticmethod
+    def remove_adjacent(item):  # code from https://stackoverflow.com/a/3460423
+        nums = list(item)
+        a = nums[:1]
+        for item in nums[1:]:
+            if item != a[-1]:
+                a.append(item)
+        return ''.join(a)
 
     def initialize(self, args):
         """`initialize` is called only once when the model is being loaded.
@@ -40,19 +48,18 @@ class TritonPythonModel:
 
         # Get OUTPUT0 configuration
         output0_config = pb_utils.get_output_config_by_name(
-            model_config, "generated_image")
+            model_config, "recognized_speech")
 
         # Convert Triton types to numpy types
         self.output0_dtype = pb_utils.triton_string_to_numpy(
             output0_config['data_type'])
 
-        # load the dalle model
-        self.dallemodel = MinDalle(
-            dtype=torch.float16,
-            device='cuda',
-            is_mega=True,
-            is_reusable=True
-        )
+        # download the vocab file
+        urllib.request.urlretrieve("https://huggingface.co/facebook/wav2vec2-base-960h/raw/main/vocab.json",
+                                   "vocab.json")
+        with open("vocab.json", "r", encoding="utf-8-sig") as f:
+            d = eval(f.read())
+        self.res = dict((v, k) for k, v in d.items())
 
     def execute(self, requests):
         """`execute` MUST be implemented in every Python model. `execute`
@@ -84,25 +91,19 @@ class TritonPythonModel:
         # and create a pb_utils.InferenceResponse for each of them.
         for request in requests:
             # Get INPUT0
-            in_0 = pb_utils.get_input_tensor_by_name(request, "text_prompt")
+            in_0 = pb_utils.get_input_tensor_by_name(request, "predicted_tokens").as_numpy()
+            prediction = np.argmax(in_0, axis=-1)
 
-            text_prompt = in_0.as_numpy()[0][0].decode('UTF-8')
+            print(prediction)
+            print(prediction.shape)
+            sys.stdout.flush()
 
-            image = self.dallemodel.generate_image(
-                text=text_prompt,
-                seed=-1,
-                grid_size=1,
-                is_seamless=False,
-                temperature=1,
-                top_k=128,
-                supercondition_factor=16,
-                is_verbose=False
-            )
+            # Text post processing
+            _t1 = ''.join([self.res[i] for i in list(prediction[0])])
+            text = ''.join([self.remove_adjacent(j) for j in _t1.split("<pad>")]).replace("|", " ").lower()
 
-            image_array = np.array(image)
-
-            out_tensor_0 = pb_utils.Tensor("generated_image",
-                                           image_array.astype(output0_dtype))
+            out_tensor_0 = pb_utils.Tensor("recognized_speech",
+                                           np.array(text).astype(output0_dtype))
 
             # Create InferenceResponse. You can set an error here in case
             # there was a problem with handling this inference request.
@@ -125,4 +126,3 @@ class TritonPythonModel:
         the model to perform any necessary clean ups before exit.
         """
         print('Cleaning up...')
-        del self.dallemodel

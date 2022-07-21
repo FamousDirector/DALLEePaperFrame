@@ -1,0 +1,50 @@
+name: "asr_pre"
+backend: "python"
+max_batch_size: 1
+input [
+{
+    name: "raw_audio_data"
+    data_type: TYPE_FP32
+    dims: [ -1, -1 ]
+},
+{
+    name: "sampling_rate"
+    data_type: TYPE_FP32
+    dims: [ 1 ]
+}
+]
+
+output [
+{
+    name: "preprocessed_audio"
+    data_type: TYPE_FP32
+    dims: [ -1 ]
+}
+]
+
+instance_group [{ kind: KIND_CPU }]
+
+model_warmup [
+    {
+        name: "warmup 1"
+        batch_size: 1
+        inputs: [
+        {
+            key: "raw_audio_data"
+            value: {
+                data_type: TYPE_FP32
+                dims: [1000, 2]
+                random_data: true
+                }
+        },
+        {
+            key: "sampling_rate"
+            value: {
+                data_type: TYPE_FP32
+                dims: [1]
+                random_data: true
+                }
+        }
+        ]
+    }
+]

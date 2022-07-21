@@ -18,4 +18,5 @@ RUN wget https://github.com/triton-inference-server/server/releases/download/v2.
 RUN tar -xvf tritonserver2.23.0-jetpack5.0.tgz && rm tritonserver2.23.0-jetpack5.0.tgz
 
 RUN pip3 install -q \
-    min-dalle==0.4
+    min-dalle==0.4 \
+    scipy==1.8.1

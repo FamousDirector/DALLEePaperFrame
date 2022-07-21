@@ -8,8 +8,10 @@ services:
       - /opt/tritonserver/bin/tritonserver
       - --model-store=/model_repo
       - --allow-metrics=true
+      - --model-control-mode=poll
     volumes:
       - ./model_repo:/model_repo
+    shm_size: "2g"
 
   art-generator-api:
     container_name: art-generator-api
@@ -19,3 +21,5 @@ services:
       - ./api:/workspace
     ports:
       - "8000:8000"
+    depends_on:
+      - triton-inference-server

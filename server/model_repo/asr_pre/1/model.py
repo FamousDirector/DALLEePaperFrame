@@ -1,9 +1,8 @@
-import numpy as np
 import sys
+
+import numpy as np
 import json
-import io
-import torch
-from min_dalle import MinDalle
+import scipy.signal as sps
 
 # triton_python_backend_utils is available in every Triton Python model. You
 # need to use this module to create inference requests and responses. It also
@@ -18,10 +17,16 @@ class TritonPythonModel:
     that is created must have "TritonPythonModel" as the class name.
     """
 
+    @staticmethod
+    def normalize(x):
+        mean = np.mean(x, axis=-1, keepdims=True)
+        var = np.var(x, axis=-1, keepdims=True)
+        return np.squeeze((x - mean) / np.sqrt(var + 1e-5))
+
     def initialize(self, args):
         """`initialize` is called only once when the model is being loaded.
         Implementing `initialize` function is optional. This function allows
-        the model to intialize any state associated with this model.
+        the model to initialize any state associated with this model.
 
         Parameters
         ----------
@@ -40,19 +45,14 @@ class TritonPythonModel:
 
         # Get OUTPUT0 configuration
         output0_config = pb_utils.get_output_config_by_name(
-            model_config, "generated_image")
+            model_config, "preprocessed_audio")
 
         # Convert Triton types to numpy types
         self.output0_dtype = pb_utils.triton_string_to_numpy(
             output0_config['data_type'])
 
-        # load the dalle model
-        self.dallemodel = MinDalle(
-            dtype=torch.float16,
-            device='cuda',
-            is_mega=True,
-            is_reusable=True
-        )
+        # preprocessing values
+        self.new_rate = 16000
 
     def execute(self, requests):
         """`execute` MUST be implemented in every Python model. `execute`
@@ -83,26 +83,41 @@ class TritonPythonModel:
         # Every Python backend must iterate over everyone of the requests
         # and create a pb_utils.InferenceResponse for each of them.
         for request in requests:
-            # Get INPUT0
-            in_0 = pb_utils.get_input_tensor_by_name(request, "text_prompt")
+            raw_audio_array = pb_utils.get_input_tensor_by_name(request, "raw_audio_data").as_numpy()[0]
+            sampling_rate = pb_utils.get_input_tensor_by_name(request, "sampling_rate").as_numpy()
 
-            text_prompt = in_0.as_numpy()[0][0].decode('UTF-8')
+            # preprocessing
+            num_of_channels = raw_audio_array.shape[-1]
+            raw_audio_array = raw_audio_array.sum(axis=-1) / num_of_channels  # multi channel (stereo) to mono
 
-            image = self.dallemodel.generate_image(
-                text=text_prompt,
-                seed=-1,
-                grid_size=1,
-                is_seamless=False,
-                temperature=1,
-                top_k=128,
-                supercondition_factor=16,
-                is_verbose=False
-            )
+            sample_length = int(len(raw_audio_array) * float(self.new_rate) / sampling_rate)
 
-            image_array = np.array(image)
+            if sample_length == 0:
+                sample_length = len(raw_audio_array)
+                print("Error: sample_length is 0, defaulting to original length")
+            elif sample_length < 0:
+                sample_length = len(raw_audio_array)
+                print("Error: sample_length is negative, defaulting to original length")
+            elif sample_length > len(raw_audio_array) * 10:
+                sample_length = len(raw_audio_array)
+                print("Error: sample_length is greater than 10 times original length, defaulting to original length")
 
-            out_tensor_0 = pb_utils.Tensor("generated_image",
-                                           image_array.astype(output0_dtype))
+            new_data = sps.resample(raw_audio_array, sample_length)
+            speech = np.array(new_data, dtype=np.float32)
+
+            print(speech)
+            print(speech.shape)
+            sys.stdout.flush()
+
+
+            speech = self.normalize(speech)[None]
+
+            print(speech)
+            print(speech.shape)
+            sys.stdout.flush()
+
+            out_tensor_0 = pb_utils.Tensor("preprocessed_audio",
+                                           speech.astype(output0_dtype))
 
             # Create InferenceResponse. You can set an error here in case
             # there was a problem with handling this inference request.
@@ -125,4 +140,3 @@ class TritonPythonModel:
         the model to perform any necessary clean ups before exit.
         """
         print('Cleaning up...')
-        del self.dallemodel

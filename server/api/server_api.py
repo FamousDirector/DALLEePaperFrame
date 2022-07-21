@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image
 from fastapi import FastAPI, UploadFile
 from fastapi.responses import FileResponse
+from scipy.io import wavfile
 
 app = FastAPI()
 base_img_path = "../generated_images/"
@@ -51,9 +52,28 @@ def generate_image(text: str, size: int = 256):
     return FileResponse(image_path, media_type="image/png")
 
 
-@app.get("/transcribe")
+@app.post("/transcribe")
 def transcribe_audio_file(file: UploadFile):
-    if file.content_type != "audio/wav":
-        return "Invalid file type"
-    # TODO - transcribe audio file
-    return {"transcribed_text": "TODO"}
+    if file.content_type != "audio/wav" and file.content_type != "audio/x-wav":
+        return f"Invalid file type: {file.content_type}"
+
+    sampling_rate, data = wavfile.read(file.file)
+
+    data = np.expand_dims(data, axis=0) # add batch dimension
+
+    # infer the text from the audio file
+    inputs = []
+    outputs = []
+    inputs.append(tritonclient.InferInput("raw_audio_data", data.shape, np_to_triton_dtype(np.float32)))
+    inputs.append(tritonclient.InferInput("sampling_rate", [1, 1], np_to_triton_dtype(np.float32)))
+    outputs.append(tritonclient.InferRequestedOutput("predicted_text"))
+
+    inputs[0].set_data_from_numpy(np.asarray(data, dtype=np.float32))
+    inputs[1].set_data_from_numpy(np.asarray([[sampling_rate]], dtype=np.float32))
+    results = triton_client.infer(model_name="asr",
+                                  inputs=inputs,
+                                  outputs=outputs)
+
+    predicted_text = results.as_numpy("predicted_text").tolist()
+
+    return {"transcribed_text": predicted_text}
