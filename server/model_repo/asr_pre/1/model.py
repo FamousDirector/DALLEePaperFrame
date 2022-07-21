@@ -105,16 +105,7 @@ class TritonPythonModel:
             new_data = sps.resample(raw_audio_array, sample_length)
             speech = np.array(new_data, dtype=np.float32)
 
-            print(speech)
-            print(speech.shape)
-            sys.stdout.flush()
-
-
             speech = self.normalize(speech)[None]
-
-            print(speech)
-            print(speech.shape)
-            sys.stdout.flush()
 
             out_tensor_0 = pb_utils.Tensor("preprocessed_audio",
                                            speech.astype(output0_dtype))

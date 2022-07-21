@@ -94,10 +94,6 @@ class TritonPythonModel:
             in_0 = pb_utils.get_input_tensor_by_name(request, "predicted_tokens").as_numpy()
             prediction = np.argmax(in_0, axis=-1)
 
-            print(prediction)
-            print(prediction.shape)
-            sys.stdout.flush()
-
             # Text post processing
             _t1 = ''.join([self.res[i] for i in list(prediction[0])])
             text = ''.join([self.remove_adjacent(j) for j in _t1.split("<pad>")]).replace("|", " ").lower()
