@@ -4,6 +4,4 @@ RUN pip3 install -q \
     min-dalle==0.4 \
     scipy==1.8.1
 
-WORKDIR /opt/tritonserver
-
-
+WORKDIR /opt/tritonserver/bin

@@ -194,7 +194,6 @@ if __name__ == '__main__':
     set_button_function('C', display_new_generated_image_w_recorded_prompt)
     set_button_function('D', toggle_auto_image_generation)
 
-
     # set display to auto create a new image every N hours
     def image_generation_timer():
         if automated_image_generation and time.time() - last_creation_time > minimum_time_between_image_generations:

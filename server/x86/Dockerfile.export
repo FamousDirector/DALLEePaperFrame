@@ -6,4 +6,4 @@ RUN pip3 install torchaudio==0.12.0+cu116 -f https://download.pytorch.org/whl/cu
 
 WORKDIR /workspace
 
-ADD extract_onnx_models.py
+ADD extract_onnx_models.py .

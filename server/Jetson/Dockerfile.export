@@ -4,4 +4,4 @@ RUN pip3 install transformers soundfile
 
 WORKDIR /workspace
 
-ADD extract_onnx_models.py
+ADD extract_onnx_models.py .

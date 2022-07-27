@@ -90,6 +90,12 @@ See here for other notes on reducing power consumption on Raspberry Pis:
   - https://www.cnx-software.com/2021/12/09/raspberry-pi-zero-2-w-power-consumption/
   - https://blues.io/blog/tips-tricks-optimizing-raspberry-pi-power/
 
+### System requirements
+The min-dalle model and ASR model take around 8GB and 4GB of GPU memory, respectively. So ensure you have at least 12GB of GPU memory. 
+If your GPU does not have enough memory, you may want to consider only running the `min-dalle` model for generating art.
+
+### Generation Time
+The time taken for art generation is about 10 seconds on an NVIDIA Jetson AGX Orin and about 7 seconds with an NVIDIA RTX2070.
 
 ### ePaper
 One thing to note about the ePaper is that it is not a perfect display. The particular one I chose has only 7 colors, which can lead to some images looking a bit weird.
@@ -97,6 +103,3 @@ One thing to note about the ePaper is that it is not a perfect display. The part
 Another note is when ePaper refreshes its display. It takes a few seconds to do so. The particular one I chose has a refresh rate of about 30 seconds. Here is a highly sped up sample:
 
 <img src="docs/sample.gif">
-
-### Generation Time
-The time taken for art generation is about 10 seconds on an NVIDIA Jetson AGX Orin and about 7 seconds with an NVIDIA RTX2070. 
