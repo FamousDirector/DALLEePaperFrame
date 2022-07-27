@@ -5,7 +5,7 @@ services:
     container_name: triton-inference-server
     image: triton-inference-server
     command:
-      - /opt/tritonserver/bin/tritonserver
+      - ./tritonserver
       - --model-store=/model_repo
       - --allow-metrics=true
       - --model-control-mode=poll
